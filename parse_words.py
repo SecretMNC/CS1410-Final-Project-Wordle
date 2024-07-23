@@ -1,4 +1,4 @@
-with open("wordlist.txt", "r") as file:
+with open("word_list.txt", "r") as file:
     words = file.readlines()
     
 filtered_words = map(lambda x: x.replace("\u200b", ""), words)

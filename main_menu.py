@@ -1,11 +1,14 @@
 import tkinter as tk
 from tkinter import ttk
+from game import Game
 
 class Windows(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
         # Adding a title to the window
         self.wm_title("Main Menu")
+        # Sets the dimensions of the window
+        self.geometry("800x1000")
 
         # creating a frame and assigning it to container
         container = tk.Frame(self, height=800, width=600)
@@ -18,7 +21,7 @@ class Windows(tk.Tk):
 
         # We will now create a dictionary of frames
         self.frames = {}
-        for F in (MainMenu, HowToPlay, Game):
+        for F in (MainMenu, HowToPlay, GameInterface):
             frame = F(container, self)
 
             # the windows class acts as the root window for the frames.
@@ -58,15 +61,18 @@ class MainMenu(tk.Frame):
         switch_window_button = tk.Button(
             self,
             text="Start Game",
-            command=lambda: controller.show_frame(Game),
+            command=lambda: controller.show_frame(GameInterface),
         )
         switch_window_button.pack(side="bottom", fill=tk.X)
 
-class Game(tk.Frame):
+
+class GameInterface(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Let's Play Wordle!")
         label.pack(padx=10, pady=10)
+
+        Game()
 
         switch_window_button = tk.Button(
             self,

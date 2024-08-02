@@ -1,97 +1,67 @@
 import tkinter as tk
 from tkinter import ttk
-from game import Game
+from PIL import Image, ImageTk
+from how_to import open
+from play_game import play
 
 class Windows(tk.Tk):
-    def __init__(self, *args, **kwargs):
-        tk.Tk.__init__(self, *args, **kwargs)
-        # Adding a title to the window
+    def __init__(self):
+         # Inheriting from tk.Tk, adding a title, and setting sizes of the window
+        super().__init__()
         self.wm_title("Main Menu")
-        # Sets the dimensions of the window
-        self.geometry("800x1000")
+        self.geometry("600x800")
+        self.resizable(False, False)
+        
+        #logo 
+        #read the image
+        self.logo_image = Image.open('assets/wordle_logo.png')
+        #resize the image using resize() method
+        self.resize_logo_image = self.logo_image.resize((600,300))
 
-        # creating a frame and assigning it to container
-        container = tk.Frame(self, height=800, width=600)
-        # specifying the region where the frame is packed in root
-        container.pack(side="top", fill="both", expand=True)
+        #convert image to tk format
+        self.logo_tk_image = ImageTk.PhotoImage(self.resize_logo_image)
+        
+        #add label and add resized image
+        logo_label = ttk.Label(image=self.logo_tk_image)
+        logo_label.image = self.logo_tk_image
+        
+        #place image label with image
+        logo_label.pack()
 
-        # configuring the location of the container using grid
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
+        #place byline and button widgets
+        self.menu = Menu(self)
 
-        # We will now create a dictionary of frames
-        self.frames = {}
-        for F in (MainMenu, HowToPlay, GameInterface):
-            frame = F(container, self)
+        #run
+        self.mainloop()
 
-            # the windows class acts as the root window for the frames.
-            self.frames[F] = frame
-            frame.grid(row=0, column=0, sticky="nsew")
-
-        # Using a method to switch frames
-        self.show_frame(MainMenu)
-
-    def show_frame(self, cont):
-        frame = self.frames[cont]
-        # raises the current frame to the top
-        frame.tkraise()
+class Menu(ttk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        
+        self.make_widgets()
     
-class MainMenu(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Wordle")
-        label.pack(padx=10, pady=10)
+    def make_widgets(self):
+        #define widget container on frame
+        self.place(x=290, y=400, relwidth=0.55, relheight=0.5, anchor='center')
+        
+        #create byline widgets
+        makers_1 = ttk.Label(self, text="\n\n\nA CS1410 Production\n", justify="center", font=('Arial', 28))
+        makers_2 = ttk.Label(self, text="by\n\nKevin Pett & Alissia Austell Huntzinger\n\n", justify="center")
+        
+        #place byline widgets in container
+        makers_1.pack()
+        makers_2.pack()
 
-        # We use the switch_window_button in order to call the show_frame() method as a lambda function
-        switch_window_button = tk.Button(
-            self,
-            text="Quit Game",
-            # command=lambda: controller.show_frame(MainMenu),
-            command=lambda: quit()
-        )
-        switch_window_button.pack(side="bottom", fill=tk.X)
+        #create button widgets
+        how_btn = ttk.Button(self, text="How to Play", command=open)
+        play_btn = ttk.Button(self, text="Play Game", command=play)
+        close_btn = ttk.Button(self, text="Close", command=self.quit)
 
-        switch_window_button = tk.Button(
-            self,
-            text="How To Play",
-            command=lambda: controller.show_frame(HowToPlay),
-        )
-        switch_window_button.pack(side="bottom", fill=tk.X)
+        #place widgets in container
+        how_btn.pack(side='left')#grid(row=2, column=0, sticky="nsew", padx=25)
+        play_btn.pack(side='left')#grid(row=2, column=1, sticky="nsew", padx=27)
+        close_btn.pack(side='left')#grid(row=2, column=3, sticky="nsew", padx=31)
 
-        switch_window_button = tk.Button(
-            self,
-            text="Start Game",
-            command=lambda: controller.show_frame(GameInterface),
-        )
-        switch_window_button.pack(side="bottom", fill=tk.X)
+w = Windows()
 
 
-class GameInterface(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Let's Play Wordle!")
-        label.pack(padx=10, pady=10)
-
-        Game()
-
-        switch_window_button = tk.Button(
-            self,
-            text="Return to Main Menu",
-            command=lambda: controller.show_frame(MainMenu),
-        )
-        switch_window_button.pack(side="bottom", fill=tk.X)
-
-
-class HowToPlay(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="How to play Wordle")
-        label.pack(padx=10, pady=10)
-        switch_window_button = ttk.Button(
-            self, text="Return to main menu", command=lambda: controller.show_frame(MainMenu)
-        )
-        switch_window_button.pack(side="bottom", fill=tk.X)
-
-if __name__ == "__main__":
-    testObj = Windows()
-    testObj.mainloop()

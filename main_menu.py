@@ -2,7 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 # from PIL import Image, ImageTk
 from tkinter import PhotoImage
-from how_to import open
+from how_to import HowToPlay
+from game import WordleApp
 from play_game import play
 
 class Windows(tk.Tk):
@@ -30,9 +31,9 @@ class Windows(tk.Tk):
         # logo_label.pack()
 
         #  Image without PIL import
-        self.logo = PhotoImage(file="assets/wordle_logo_resized.gif")
-        self.logo_label = tk.Label(self, image=self.logo)
-        self.logo_label.pack()
+        #self.logo = PhotoImage(file="assets/wordle_logo_resized.gif")
+        #self.logo_label = tk.Label(self, image=self.logo)
+        #self.logo_label.pack()
 
         #place byline and button widgets
         self.menu = Menu(self)
@@ -61,7 +62,7 @@ class Menu(ttk.Frame):
 
         #create button widgets
         how_btn = ttk.Button(self, text="How to Play", command=HowToPlay)
-        play_btn = ttk.Button(self, text="Play Game", command=play)
+        play_btn = ttk.Button(self, text="Play Game", command=WordleApp)
         close_btn = ttk.Button(self, text="Close", command=self.quit)
 
         #place widgets in container

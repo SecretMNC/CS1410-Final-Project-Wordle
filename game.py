@@ -3,8 +3,8 @@ from tkinter import messagebox
 from random_word import WordPicker
 
 class WordleApp:
-    def __init__(self, root=tk.Tk()):
-        self.root = root
+    def __init__(self):
+        self.root = tk.Tk()
         self.root.title("Wordle!")
 
         # Create a WordPicker instance and get the word and difficulty

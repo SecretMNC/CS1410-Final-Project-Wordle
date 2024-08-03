@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from test_game import WordleApp
+from game import WordleApp
 
 def play():
     game_window = tk.Toplevel()

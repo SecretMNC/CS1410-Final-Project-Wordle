@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from parse_words import WordPicker
+from random_word import WordPicker
 
 class WordleApp:
     def __init__(self, root):
@@ -146,9 +146,7 @@ class WordleApp:
 
     def keyboard(self, event) -> None:
         # Accepts the enter/return key in place of pressing the submit button
-        guess_len: int = len(self.entry.get())
-        if event.keysym == "Return" or event.keysym == "KP_Enter" \
-        and guess_len == 5 and self.guess_num < 6:
+        if event.keysym == "Return" or event.keysym == "KP_Enter":
             self.check_guess()
 
     def reset(self):

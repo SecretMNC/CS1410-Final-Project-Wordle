@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 # from PIL import Image, ImageTk
 from tkinter import PhotoImage
-from how_to import open
+from how_to import HowToPlay
 from play_game import play
 
 class Windows(tk.Tk):
@@ -11,7 +11,7 @@ class Windows(tk.Tk):
         super().__init__()
         self.wm_title("Main Menu")
         self.geometry("600x800")
-        # self.resizable(False, False)
+        self.resizable(False, False)
         
         # #logo with PIL import
         # #read the image

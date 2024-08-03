@@ -33,7 +33,7 @@ class Game:
         self._guess_num = 0
         while self._guess_num < 5:
             self.build_guess(self._guess_num)
-            
+            self._guess_num += 1
             
 
 

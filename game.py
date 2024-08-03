@@ -3,7 +3,7 @@ from tkinter import messagebox
 from random_word import WordPicker
 
 class WordleApp:
-    def __init__(self, root):
+    def __init__(self, root=tk.Tk()):
         self.root = root
         self.root.title("Wordle!")
 
@@ -24,6 +24,8 @@ class WordleApp:
                                        text="Submit", 
                                        command=self.check_guess)
         self.submit_button.grid(row=7, column=0, columnspan=5)
+
+        self.root.mainloop()
 
     def create_grid(self) -> None:
         # Creates the empty guess boxes at the start of a game
@@ -173,6 +175,4 @@ class WordleApp:
         
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = WordleApp(root)
-    root.mainloop()
+    app = WordleApp()

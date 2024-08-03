@@ -45,7 +45,7 @@ class Menu(ttk.Frame):
         self.pack(padx=50, pady=50)
 
         #create byline widgets
-        makers_1 = ttk.Label(self, text="\n\n\nA CS1410 Production\n", justify="center", font=('Arial', 28))
+        makers_1 = ttk.Label(self, text="\n\n\nCS1410 Final Project\n", justify="center", font=('Helvetica', 28))
         makers_2 = ttk.Label(self, text="by\n\nKevin Pett & Alissia Austell Huntzinger\n\n", justify="center")
         
         #place byline widgets in container
@@ -62,4 +62,5 @@ class Menu(ttk.Frame):
         play_btn.pack(side='left')
         close_btn.pack(side='left')
 
-w = Windows()
+if __name__ == "__main__":
+    w = Windows()

@@ -35,8 +35,8 @@ class Windows(tk.Tk):
         self.mainloop()
 
 class Menu(ttk.Frame):
-    def __init__(self, parent):
-        super().__init__(parent)
+    def __init__(self, root):
+        super().__init__(root)
         
         self.make_widgets()
     
@@ -58,9 +58,9 @@ class Menu(ttk.Frame):
         close_btn = ttk.Button(self, text="Close", command=self.quit)
 
         #place widgets in container
-        how_btn.pack(side='left')#grid(row=2, column=0, sticky="nsew", padx=25)
-        play_btn.pack(side='left')#grid(row=2, column=1, sticky="nsew", padx=27)
-        close_btn.pack(side='left')#grid(row=2, column=3, sticky="nsew", padx=31)
+        how_btn.pack(side='left')
+        play_btn.pack(side='left')
+        close_btn.pack(side='left')
 
 w = Windows()
 

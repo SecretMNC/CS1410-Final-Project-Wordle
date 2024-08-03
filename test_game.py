@@ -6,8 +6,11 @@ class WordleApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Wordle!")
-        self.word = "POKER"
-        #self.word, self.diff = WordPicker()
+
+        # Create a WordPicker instance and get the word and difficulty
+        picker = WordPicker()
+        self.word, self.diff = picker.get_word_and_difficulty()
+
         self.guess: str
         self.guess_num = 0
 
@@ -40,32 +43,28 @@ class WordleApp:
             self.labels.append(row_labels)
 
     def check_guess(self) -> None:
-        """Checks each character of the guess against each char of the word.
-        1: If the character matches in the exact index, append a '2' to a list
-        2: If the character exists but it's already been guessed right AND 
-        the char isn't in the remaining indexes, append a '0'
-        3: If the character exists but it's in the wrong index, append a '1'
-        4: Else append a '0' """
-        self.guess: str = self.entry.get().upper()
+        """Checks each character of the guess against each char of the word."""
+        self.guess = self.entry.get().upper()
         if not self.invalid_guess():
             return None
 
-        def check_if_already_right(index, char) -> bool:
-            # Checks if the given character was already guessed correctly
-            if check[index] == 2 and self.word[index] == char:
-                return True
+        check: list[int] = [0] * 5
+        letter_used = [False] * 5  # Track which letters in the word have been used
 
-        check: list[int] = []
+        # First pass: check for exact matches (green)
         for index, char in enumerate(self.guess):
             if self.word[index] == char:
-                check.append(2)
-            elif [x for x in range(index) if check_if_already_right(x, char)] \
-                and char not in self.word[index:]:
-                check.append(0)
-            elif char in self.word:
-                check.append(1)
-            else:
-                check.append(0)
+                check[index] = 2
+                letter_used[index] = True
+
+        # Second pass: check for correct letters in wrong position (yellow)
+        for index, char in enumerate(self.guess):
+            if check[index] == 0:  # Only process if not green
+                for j, w_char in enumerate(self.word):
+                    if not letter_used[j] and char == w_char:
+                        check[index] = 1
+                        letter_used[j] = True
+                        break
 
         self.update_labels(check)
         self.guess_num += 1
@@ -74,6 +73,7 @@ class WordleApp:
             self.guess = ""
             self.entry.delete(0, tk.END)
             self.entry.insert(0, self.guess)
+
 
     def invalid_guess(self) -> bool:
         if list(filter(lambda x: not x.isalpha(), self.guess)):
@@ -139,7 +139,7 @@ class WordleApp:
             self.entry.destroy()
             self.submit_button.destroy()
             self.retry_button = tk.Button(self.root,
-                                    text="Try again?", 
+                                    text="Try another?", 
                                     command=self.reset)
             self.retry_button.grid(row=7, column=0, columnspan=5)
             self.result_label.grid(row=8, column=0, columnspan=5)
@@ -152,10 +152,14 @@ class WordleApp:
             self.check_guess()
 
     def reset(self):
+        # Wipes the old game and creates a new one with a new word
         self.retry_button.destroy()
         self.result_label.destroy()
-        self.word = "RANDO"
-        self.guess: str = ""
+
+        picker = WordPicker()
+        self.word, self.diff = picker.get_word_and_difficulty()
+
+        self.guess = ""
         self.guess_num = 0
 
         self.create_grid()
@@ -165,10 +169,10 @@ class WordleApp:
         self.entry.grid(row=6, column=0, columnspan=5)
 
         self.submit_button = tk.Button(self.root, 
-                                       text="Submit", 
-                                       command=self.check_guess)
+                                    text="Submit", 
+                                    command=self.check_guess)
         self.submit_button.grid(row=7, column=0, columnspan=5)
-
+        
 
 if __name__ == "__main__":
     root = tk.Tk()

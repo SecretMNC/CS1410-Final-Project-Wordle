@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
-#from PIL import Image, ImageTk
-from how_to import HowToPlay
+# from PIL import Image, ImageTk
+from tkinter import PhotoImage
+from how_to import open
 from play_game import play
 
 class Windows(tk.Tk):
@@ -9,24 +10,29 @@ class Windows(tk.Tk):
          # Inheriting from tk.Tk, adding a title, and setting sizes of the window
         super().__init__()
         self.wm_title("Main Menu")
-        #self.geometry("600x800")
-        self.resizable(False, False)
+        self.geometry("600x800")
+        # self.resizable(False, False)
         
-        #logo 
-        #read the image
-        #self.logo_image = Image.open('assets/wordle_logo.png')
-        #resize the image using resize() method
-        #self.resize_logo_image = self.logo_image.resize((600,300))
+        # #logo with PIL import
+        # #read the image
+        # self.logo_image = Image.open('assets/wordle_logo.png')
+        # #resize the image using resize() method
+        # self.resize_logo_image = self.logo_image.resize((600,300))
 
-        #convert image to tk format
-        #self.logo_tk_image = ImageTk.PhotoImage(self.resize_logo_image)
+        # #convert image to tk format
+        # self.logo_tk_image = ImageTk.PhotoImage(self.resize_logo_image)
         
-        #add label and add resized image
-        #logo_label = ttk.Label(image=self.logo_tk_image)
-        #logo_label.image = self.logo_tk_image
+        # #add label and add resized image
+        # logo_label = ttk.Label(image=self.logo_tk_image)
+        # logo_label.image = self.logo_tk_image
         
-        #place image label with image
-        #logo_label.pack()
+        # #place image label with image
+        # logo_label.pack()
+
+        #  Image without PIL import
+        self.logo = PhotoImage(file="assets/wordle_logo_resized.gif")
+        self.logo_label = tk.Label(self, image=self.logo)
+        self.logo_label.pack()
 
         #place byline and button widgets
         self.menu = Menu(self)
@@ -42,7 +48,8 @@ class Menu(ttk.Frame):
     
     def make_widgets(self):
         #define widget container on frame
-        self.pack(padx=50, pady=50)
+        # self.place(x=290, y=400, relwidth=0.55, relheight=0.5, anchor='center')
+        self.pack()
 
         #create byline widgets
         makers_1 = ttk.Label(self, text="\n\n\nA CS1410 Production\n", justify="center", font=('Arial', 28))

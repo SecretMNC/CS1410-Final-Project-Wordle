@@ -12,29 +12,13 @@ class Windows(tk.Tk):
         self.wm_title("Main Menu")
         self.geometry("600x800")
         self.resizable(False, False)
-        
-        # #logo with PIL import
-        # #read the image
-        # self.logo_image = Image.open('assets/wordle_logo.png')
-        # #resize the image using resize() method
-        # self.resize_logo_image = self.logo_image.resize((600,300))
 
-        # #convert image to tk format
-        # self.logo_tk_image = ImageTk.PhotoImage(self.resize_logo_image)
-        
-        # #add label and add resized image
-        # logo_label = ttk.Label(image=self.logo_tk_image)
-        # logo_label.image = self.logo_tk_image
-        
-        # #place image label with image
-        # logo_label.pack()
-
-        #  Image without PIL import
+        #  Image 
         self.logo = PhotoImage(file="assets/wordle_logo_resized.gif")
         self.logo_label = tk.Label(self, image=self.logo)
         self.logo_label.pack()
 
-        #place byline and button widgets
+        # Place byline and button widgets
         self.menu = Menu(self)
 
         #run
@@ -48,7 +32,6 @@ class Menu(ttk.Frame):
     
     def make_widgets(self):
         #define widget container on frame
-        # self.place(x=290, y=400, relwidth=0.55, relheight=0.5, anchor='center')
         self.pack()
 
         #create byline widgets

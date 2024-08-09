@@ -9,7 +9,7 @@ class WordPicker:
         self._word_dict = {}
         self.word_file = word_file
         self.fix_file = False
-        self.invalid_word: str = ""rt
+        self.invalid_word: str = ""
 
         self.read_word_list()
         self._random_word = choice(list(self._word_dict.keys()))

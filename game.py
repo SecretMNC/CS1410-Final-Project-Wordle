@@ -1,178 +1,166 @@
+"""Contains GUI and game functionality logic for a game of Wordle.
+Each game produces a new, random word from a list of 580 words.
+Run this module to skip the main menu and play immediately."""
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk
 from random_word import WordPicker
+from typing import List
+
 
 class WordleApp:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Wordle!")
+        self.root.configure(bg="#F0F0F0")
 
         # Create a WordPicker instance and get the word and difficulty
         picker = WordPicker()
         self.word, self.diff = picker.get_word_and_difficulty()
 
-        self.guess: str
         self.guess_num = 0
+        self.current_col = 0
 
+        self.setup_styles()
         self.create_grid()
-
-        self.entry = tk.Entry(self.root)
-        self.entry.bind("<KeyPress>", self.keyboard)
-        self.entry.grid(row=6, column=0, columnspan=5)
-
-        self.submit_button = tk.Button(self.root, 
-                                       text="Submit", 
-                                       command=self.check_guess)
-        self.submit_button.grid(row=7, column=0, columnspan=5)
 
         self.root.mainloop()
 
+    def setup_styles(self):
+        # Create styles for various states of guess boxes
+        self.style = ttk.Style()
+        self.style.theme_use("clam")
+
+        self.style.configure("TEntry", font=("Helvetica", 96))
+        self.style.configure(
+            "Correct.TEntry", foreground="white", fieldbackground="#6AAA64"
+        )
+        self.style.configure(
+            "Present.TEntry", foreground="white", fieldbackground="#C9B458"
+        )
+        self.style.configure(
+            "Absent.TEntry", foreground="white", fieldbackground="#787C7E"
+        )
+        self.style.map(
+            "Correct.TEntry", fieldbackground=[("readonly", "#6AAA64")]
+        )
+        self.style.map(
+            "Present.TEntry", fieldbackground=[("readonly", "#C9B458")]
+        )
+        self.style.map(
+            "Absent.TEntry", fieldbackground=[("readonly", "#787C7E")]
+        )
+
     def create_grid(self) -> None:
-        # Creates the empty guess boxes at the start of a game
-        self.labels: list[list[tk.Label]] = []
+        # Sets up 5 by 6 grid of Entry boxes, ready to handle inputs
+        self.entries = []
         for row in range(6):
-            row_labels: list[tk.Label] = []
+            row_entries = []
             for col in range(5):
-                label = tk.Label(self.root, 
-                                 text="", 
-                                 width=2, 
-                                 height=1, 
-                                 font=("Helvetica", 24), 
-                                 borderwidth=2, 
-                                 relief="solid")
-                label.grid(row=row, column=col)
-                row_labels.append(label)
-            self.labels.append(row_labels)
+                entry = ttk.Entry(
+                    self.root, width=2, justify="center", style="TEntry"
+                )
+                entry.grid(row=row, column=col, padx=4, pady=10)
+                entry.bind(
+                    "<KeyRelease>",
+                    lambda event, row_=row, col_=col: self.handle_input(
+                        event, row_, col_
+                    ),
+                )
+                row_entries.append(entry)
+            self.entries.append(row_entries)
 
-    def check_guess(self) -> None:
-        """Checks each character of the guess against each char of the word."""
-        self.guess = self.entry.get().upper()
-        if not self.invalid_guess():
-            return None
+        # Set focus on the first entry of the first row
+        self.entries[0][0].focus_set()
 
-        check: list[int] = [0] * 5
-        letter_used = [False] * 5  # Track which letters in the word have been used
+    def handle_input(self, event, row, col) -> None:
+        entry = self.entries[row][col]
+        value = entry.get().upper()
 
-        # First pass: check for exact matches (green)
-        for index, char in enumerate(self.guess):
+        if event.keysym == "BackSpace":
+            if col > 0 and not value:
+                self.entries[row][col - 1].focus_set()
+                self.entries[row][col - 1].delete(0, tk.END)
+            return
+
+        if not value:
+            return
+
+        # Ensure only the first character is kept
+        value = value[0]
+
+        if not value.isalpha():
+            entry.delete(0, tk.END)
+            return
+
+        entry.delete(0, tk.END)
+        entry.insert(0, value)
+
+        if col < 4:
+            self.entries[row][col + 1].focus_set()
+        else:
+            self.check_guess(row)
+
+    def check_guess(self, row) -> None:
+        guess = "".join(entry.get().upper() for entry in self.entries[row])
+
+        if len(guess) != 5:
+            return
+
+        check = [0] * 5
+        letter_used = [False] * 5
+
+        # First pass: check for correct letters in correct positions
+        for index, char in enumerate(guess):
             if self.word[index] == char:
                 check[index] = 2
                 letter_used[index] = True
 
-        # Second pass: check for correct letters in wrong position (yellow)
-        for index, char in enumerate(self.guess):
-            if check[index] == 0:  # Only process if not green
+        # Second pass: check for correct letters in wrong positions
+        for index, char in enumerate(guess):
+            if check[index] == 0:  # Only check if not already marked correct
                 for j, w_char in enumerate(self.word):
                     if not letter_used[j] and char == w_char:
                         check[index] = 1
                         letter_used[j] = True
                         break
 
-        self.update_labels(check)
+        self.update_colors(row, check)
         self.guess_num += 1
-        self.check_win(check)
-        if self.guess_num < 6:
-            self.guess = ""
-            self.entry.delete(0, tk.END)
-            self.entry.insert(0, self.guess)
+        result = self.check_win(check)
 
+        if self.guess_num < 6 and not result:
+            for entry in self.entries[self.guess_num]:
+                entry.config(state="normal")
+            self.entries[self.guess_num][0].focus_set()
 
-    def invalid_guess(self) -> bool:
-        if list(filter(lambda x: not x.isalpha(), self.guess)):
-            messagebox.showinfo(title="Character warning",
-                                message="Guesses may only contain letters.")
-            self.guess = ""
-            self.entry.delete(0, tk.END)
-            self.entry.insert(0, self.guess)
-            return False
-        elif len(self.guess) <= 0:
-            return False
-        elif len(self.guess) != 5:
-            messagebox.showinfo(title="Length warning",
-                                message="Guesses may only be 5 letters long.")
-            self.guess = ""
-            self.entry.delete(0, tk.END)
-            self.entry.insert(0, self.guess)
-            return False
-        else:
+    def update_colors(self, row, checker: List[int]) -> None:
+        styles = {0: "Absent.TEntry", 1: "Present.TEntry", 2: "Correct.TEntry"}
+        for index, entry in enumerate(self.entries[row]):
+            entry.config(style=styles[checker[index]], state="readonly")
+
+    def check_win(self, checker: List[int]) -> bool:
+        if all(c == 2 for c in checker):
+            self.show_result("You win!")
             return True
-
-    def update_labels(self, checker: list[int]) -> None:
-        # Takes the guess checker list and updates the letter grid
-        for index, _ in enumerate(self.labels[self.guess_num]):
-            #print(f"Index {index}, letter {self.guess[index]}")
-            if checker[index] == 2:
-                color = "green"
-            elif checker[index] == 1:
-                color = "yellow"
-            elif checker[index] == 0:
-                color = "gray"
-            new_label = tk.Label(self.root, 
-                                 text=self.guess[index], 
-                                 width=2, 
-                                 height=1, 
-                                 font=("Helvetica", 24), 
-                                 borderwidth=2, 
-                                 relief="solid",
-                                 bg=color)
-            new_label.grid(row=self.guess_num, column=index)
-            
-    def check_win(self, checker: list[int]) -> None:
-        # Checks if a win or loss condition has been met
-        if not list(filter(lambda x: x != 2, checker)):
-            self.result_label = tk.Label(self.root, 
-                                 text="You win!", 
-                                 height=1, 
-                                 font=("Helvetica", 24), 
-                                 borderwidth=2)
-            self.entry.destroy()
-            self.submit_button.destroy()
-            self.retry_button = tk.Button(self.root,
-                                    text="Play again?", 
-                                    command=self.reset)
-            self.retry_button.grid(row=7, column=0, columnspan=5)
-            self.result_label.grid(row=8, column=0, columnspan=5)
         elif self.guess_num >= 6:
-            self.result_label = tk.Label(self.root, 
-                                 text=f"The word was {self.word}.", 
-                                 height=1, 
-                                 font=("Helvetica", 12), 
-                                 borderwidth=2)
-            self.entry.destroy()
-            self.submit_button.destroy()
-            self.retry_button = tk.Button(self.root,
-                                    text="Try another?", 
-                                    command=self.reset)
-            self.retry_button.grid(row=7, column=0, columnspan=5)
-            self.result_label.grid(row=8, column=0, columnspan=5)
+            self.show_result(f"The word was \n{self.word}.")
+            return False
+        return False
 
-    def keyboard(self, event) -> None:
-        # Accepts the enter/return key in place of pressing the submit button
-        if event.keysym == "Return" or event.keysym == "KP_Enter":
-            self.check_guess()
+    def show_result(self, message: str) -> None:
+        result_label = tk.Label(
+            self.root, text=message, font=("Helvetica", 12, "bold"), bg="#F0F0F0"
+        )
+        result_label.grid(row=7, column=0, columnspan=5, pady=20)
+        retry_button = ttk.Button(
+            self.root, text="Play again", command=self.reset
+        )
+        retry_button.grid(row=8, column=0, columnspan=5, pady=20)
 
-    def reset(self):
-        # Wipes the old game and creates a new one with a new word
-        self.retry_button.destroy()
-        self.result_label.destroy()
+    def reset(self) -> None:
+        self.root.destroy()
+        WordleApp()
 
-        picker = WordPicker()
-        self.word, self.diff = picker.get_word_and_difficulty()
-
-        self.guess = ""
-        self.guess_num = 0
-
-        self.create_grid()
-
-        self.entry = tk.Entry(self.root)
-        self.entry.bind("<KeyPress>", self.keyboard)
-        self.entry.grid(row=6, column=0, columnspan=5)
-
-        self.submit_button = tk.Button(self.root, 
-                                    text="Submit", 
-                                    command=self.check_guess)
-        self.submit_button.grid(row=7, column=0, columnspan=5)
-        
 
 if __name__ == "__main__":
     app = WordleApp()

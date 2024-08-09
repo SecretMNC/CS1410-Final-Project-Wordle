@@ -1,57 +1,108 @@
+"""Displays the logo, creates functional buttons, displays credits."""
 import tkinter as tk
 from tkinter import ttk
-# from PIL import Image, ImageTk
-from tkinter import PhotoImage
 from how_to import HowToPlay
 from game import WordleApp
-from play_game import play
 
-class Windows(tk.Tk):
+
+class WordleMainMenu:
     def __init__(self):
-         # Inheriting from tk.Tk, adding a title, and setting sizes of the window
-        super().__init__()
-        self.wm_title("Main Menu")
-        self.geometry("600x800")
-        self.resizable(False, False)
+        self.root = tk.Tk()
+        self.root.title("Wordle - Main Menu")
+        self.root.geometry("600x800")
+        self.root.configure(bg="#F0F0F0")
 
-        #  Image 
-        self.logo = PhotoImage(file="assets/wordle_logo_resized.gif")
-        self.logo_label = tk.Label(self, image=self.logo)
-        self.logo_label.pack()
+        self.setup_styles()
+        self.create_logo()
+        self.create_buttons()
+        self.create_credits()
 
-        # Place byline and button widgets
-        self.menu = Menu(self)
+        self.root.mainloop()
 
-        #run
-        self.mainloop()
-
-class Menu(ttk.Frame):
-    def __init__(self, root):
-        super().__init__(root)
+    def setup_styles(self):
+        # Defines styles for labels and buttons
+        self.style = ttk.Style()
+        self.style.theme_use("clam")
         
-        self.make_widgets()
-    
-    def make_widgets(self):
-        #define widget container on frame
-        self.pack()
-
-        #create byline widgets
-        makers_1 = ttk.Label(self, text="\n\n\nCS1410 Final Project\n", justify="center", font=('Helvetica', 28))
-        makers_2 = ttk.Label(self, text="by\n\nKevin Pett & Alissia Austell Huntzinger\n\n", justify="center")
+        self.style.configure(
+            "TButton", 
+            font=("Helvetica", 20, "bold"), 
+            padding=10
+        )
         
-        #place byline widgets in container
-        makers_1.pack()
-        makers_2.pack()
+        self.style.configure(
+            "TLabel", 
+            font=("Helvetica", 24, "bold"), 
+            background="#F0F0F0"
+        )
 
-        #create button widgets
-        how_btn = ttk.Button(self, text="How to Play", command=HowToPlay)
-        play_btn = ttk.Button(self, text="Play Game", command=WordleApp)
-        close_btn = ttk.Button(self, text="Close", command=self.quit)
+    def create_logo(self):
+        # Programmatically creates Wordle logo, buttons, and credits
+        logo_frame = ttk.Frame(self.root, style="TFrame")
+        logo_frame.pack(pady=50)
 
-        #place widgets in container
-        how_btn.pack(side='left')
-        play_btn.pack(side='left')
-        close_btn.pack(side='left')
+        logo_word = "WORDLE"
+        colors = [
+            "#6AAA64", "#CEB02C", "#787C7E", 
+            "#6AAA64", "#CEB02C", "#787C7E"
+        ]  # Wordle colors
 
-if __name__ == "__main__":
-    w = Windows()
+        for num, letter in enumerate(logo_word):
+            label = tk.Label(
+                logo_frame, text=letter, 
+                font=("Helvetica", 48, "bold"), 
+                bg=colors[num], fg="white", width=2, height=1
+            )
+            label.grid(row=0, column=num, padx=2)
+            
+            # Center the text both vertically and horizontally
+            label.configure(anchor="center")
+            label.grid_configure(sticky="news")
+
+    def create_buttons(self):
+        # Makes functional button widgets
+        play_button = ttk.Button(
+            self.root, 
+            text="Play Game", 
+            command=self.play_game
+        )
+        play_button.pack(pady=20)
+
+        how_to_button = ttk.Button(
+            self.root, 
+            text="How to Play", 
+            command=self.show_how_to
+        )
+        how_to_button.pack(pady=20)
+
+        quit_button = ttk.Button(
+            self.root, 
+            text="Quit", 
+            command=self.root.quit
+        )
+        quit_button.pack(pady=20)
+
+    def create_credits(self):
+        # Makes credits label widget
+        credits = (
+            "CS1410 Final Project\n"
+            "Code: Kevin Pett\n"
+            "Idea: Alissia Huntzinger"
+        )
+        credits_label = ttk.Label(
+            self.root, 
+            text=credits,
+            font=("Helvetica", 14),
+            background="#F0F0F0",
+            justify="center"
+        )
+        credits_label.pack(side="bottom", pady=20)
+
+    def play_game(self):
+        # Deletes the main menu window and creates a game of Wordle
+        self.root.destroy()
+        WordleApp()
+
+    def show_how_to(self):
+        # Creates a new window with instructions on how to play
+        HowToPlay()

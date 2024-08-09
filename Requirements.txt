@@ -1,0 +1,12 @@
+# All library dependencies in this app are in the standard library
+
+tkinter
+random
+typing
+
+main.py
+main_menu.py
+how_to.py
+game.py
+random_word.py
+word_list.txt
